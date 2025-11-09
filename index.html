@@ -166,6 +166,7 @@
       const [selectedCustomerForEvents, setSelectedCustomerForEvents] = useState(null);
       const [showEventForm, setShowEventForm] = useState(false);
       const [editingEventIndex, setEditingEventIndex] = useState(null);
+      const [selectedCustomerDetail, setSelectedCustomerDetail] = useState(null);
       const [eventFormData, setEventFormData] = useState({
         type: 'Review',
         meetingType: 'F2F',
@@ -712,7 +713,182 @@
         }
       };
 
-      const renderList = () => (
+      const renderCustomerDetail = () => {
+        if (!selectedCustomerDetail) return null;
+
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-800">{selectedCustomerDetail.accountInfo.name}</h2>
+                <p className="text-gray-600 mt-1 text-xs uppercase tracking-wide">Customer ID: {selectedCustomerDetail.accountInfo.id}</p>
+              </div>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => editCustomer(selectedCustomerDetail)}
+                  className="px-4 py-2 bg-[#2A5C59] text-white rounded-lg hover:bg-[#1f4745] text-sm font-semibold uppercase tracking-wide shadow-md"
+                >
+                  <Edit2 size={16} className="inline mr-2" />
+                  Edit Customer
+                </button>
+                <button 
+                  onClick={() => {
+                    setSelectedCustomerDetail(null);
+                    setView('list');
+                  }}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-semibold uppercase tracking-wide"
+                >
+                  Back to List
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-6">
+              <div className="bg-white rounded-lg shadow-md border-2 border-gray-200 p-6">
+                <h3 className="font-bold text-base mb-4 uppercase tracking-wide text-gray-700 border-b-2 border-gray-300 pb-2">Account Information</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span className="text-gray-600 font-semibold uppercase tracking-wide">Name:</span>
+                    <span className="font-bold">{selectedCustomerDetail.accountInfo.name}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span className="text-gray-600 font-semibold uppercase tracking-wide">ID:</span>
+                    <span className="font-mono font-bold">{selectedCustomerDetail.accountInfo.id}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span className="text-gray-600 font-semibold uppercase tracking-wide">Industry:</span>
+                    <span className="font-semibold">{selectedCustomerDetail.accountInfo.industry}</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="text-gray-600 font-semibold uppercase tracking-wide">Account Manager:</span>
+                    <span className="font-semibold">{selectedCustomerDetail.accountInfo.accountManager}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md border-2 border-gray-200 p-6">
+                <h3 className="font-bold text-base mb-4 uppercase tracking-wide text-gray-700 border-b-2 border-gray-300 pb-2">Commercial Details</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span className="text-gray-600 font-semibold uppercase tracking-wide">ARR:</span>
+                    <span className="font-bold text-green-700 text-lg">£{selectedCustomerDetail.commercial.arr}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span className="text-gray-600 font-semibold uppercase tracking-wide">Contract Length:</span>
+                    <span className="font-semibold">{selectedCustomerDetail.commercial.contractLength} {selectedCustomerDetail.commercial.contractLength === '1' ? 'Year' : 'Years'}</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="text-gray-600 font-semibold uppercase tracking-wide">Renewal Date:</span>
+                    <span className="font-semibold">{selectedCustomerDetail.commercial.renewalDate}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md border-2 border-gray-200 p-6">
+                <h3 className="font-bold text-base mb-4 uppercase tracking-wide text-gray-700 border-b-2 border-gray-300 pb-2">Quick Actions</h3>
+                <div className="space-y-3">
+                  <button 
+                    onClick={() => {
+                      setSelectedCustomerForEvents(selectedCustomerDetail);
+                      setView('events');
+                    }}
+                    className="w-full px-4 py-3 bg-[#E5173F] text-white rounded-lg hover:bg-[#c4132f] transition-all text-sm font-semibold uppercase tracking-wide shadow-md"
+                  >
+                    <CalendarDays size={18} className="inline mr-2" />
+                    Manage Events
+                  </button>
+                  <button 
+                    onClick={() => editCustomer(selectedCustomerDetail)}
+                    className="w-full px-4 py-3 bg-[#2A5C59] text-white rounded-lg hover:bg-[#1f4745] transition-all text-sm font-semibold uppercase tracking-wide shadow-md"
+                  >
+                    <Edit2 size={18} className="inline mr-2" />
+                    Edit Details
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (confirm('Delete this customer?')) {
+                        deleteCustomer(selectedCustomerDetail.id);
+                        setSelectedCustomerDetail(null);
+                        setView('list');
+                      }
+                    }}
+                    className="w-full px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all text-sm font-semibold uppercase tracking-wide shadow-md"
+                  >
+                    <Trash2 size={18} className="inline mr-2" />
+                    Delete Customer
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md border-2 border-gray-200 p-6">
+              <h3 className="font-bold text-base mb-4 uppercase tracking-wide text-gray-700 border-b-2 border-gray-300 pb-2">Products ({Object.values(selectedCustomerDetail.products).filter(Boolean).length} Active)</h3>
+              <div className="grid grid-cols-4 gap-3">
+                {products.map(product => (
+                  <div key={product} className={`p-3 rounded-lg border-2 ${
+                    selectedCustomerDetail.products[product] 
+                      ? 'bg-green-50 border-green-300' 
+                      : 'bg-gray-50 border-gray-200'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      {selectedCustomerDetail.products[product] ? (
+                        <Check size={18} className="text-green-700 font-bold" strokeWidth={3} />
+                      ) : (
+                        <X size={18} className="text-gray-400" />
+                      )}
+                      <span className={`text-xs font-semibold ${
+                        selectedCustomerDetail.products[product] ? 'text-green-800' : 'text-gray-500'
+                      }`}>{product}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md border-2 border-gray-200 p-6">
+              <h3 className="font-bold text-base mb-4 uppercase tracking-wide text-gray-700 border-b-2 border-gray-300 pb-2">Contacts ({selectedCustomerDetail.contacts.length})</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {selectedCustomerDetail.contacts.map((contact, i) => (
+                  <div key={i} className="p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+                    <p className="font-bold text-sm text-gray-800">{contact.name || 'No Name'}</p>
+                    <p className="text-xs text-gray-600 mt-1">{contact.email || 'No Email'}</p>
+                    <p className="text-xs text-gray-600 mt-1 uppercase tracking-wide font-semibold">{contact.role || 'No Role'}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {selectedCustomerDetail.events && selectedCustomerDetail.events.length > 0 && (
+              <div className="bg-white rounded-lg shadow-md border-2 border-gray-200 p-6">
+                <h3 className="font-bold text-base mb-4 uppercase tracking-wide text-gray-700 border-b-2 border-gray-300 pb-2">Upcoming Events ({selectedCustomerDetail.events.length})</h3>
+                <div className="space-y-3">
+                  {selectedCustomerDetail.events.map((ev, i) => (
+                    <div key={i} className="p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-3 h-3 rounded-full ${
+                          ev.type === 'Review' ? 'bg-purple-600' : 
+                          ev.type === 'Contract Renewal' ? 'bg-orange-600' : 
+                          'bg-blue-600'
+                        }`}></div>
+                        <span className="font-bold text-sm uppercase tracking-wide">{ev.type}</span>
+                        <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wide ${
+                          ev.meetingType === 'F2F' ? 'bg-blue-100 text-blue-800 border border-blue-300' :
+                          'bg-orange-100 text-orange-800 border border-orange-300'
+                        }`}>
+                          {ev.meetingType}
+                        </span>
+                        <span className="text-gray-700 text-sm font-semibold">{ev.date}</span>
+                      </div>
+                      <p className="font-bold text-sm text-gray-900 ml-6">{ev.subject}</p>
+                      {ev.notes && <p className="text-xs text-gray-600 mt-2 ml-6">{ev.notes}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      };
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
@@ -737,38 +913,44 @@
           </div>
           
           <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto" style={{maxHeight: '70vh'}}>
+            <div className="overflow-x-auto" style={{maxHeight: '75vh'}}>
               <table className="w-full">
-                <thead className="bg-gradient-to-r from-gray-100 to-gray-50 sticky top-0 border-b-2 border-gray-300">
+                <thead className="bg-gradient-to-r from-gray-100 to-gray-50 sticky top-0 border-b-2 border-gray-300 z-20">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider sticky left-0 bg-gradient-to-r from-gray-100 to-gray-50 z-10 border-r border-gray-200">Customer</th>
-                    <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ID</th>
-                    <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Industry</th>
-                    <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Account Manager</th>
-                    <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ARR</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider sticky left-0 bg-gradient-to-r from-gray-100 to-gray-50 z-30 border-r border-gray-200">Customer</th>
+                    <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider sticky left-[220px] bg-gradient-to-r from-gray-100 to-gray-50 z-30 border-r border-gray-200">ID</th>
+                    <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider sticky left-[320px] bg-gradient-to-r from-gray-100 to-gray-50 z-30 border-r border-gray-200">Industry</th>
+                    <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider sticky left-[460px] bg-gradient-to-r from-gray-100 to-gray-50 z-30 border-r border-gray-200">Account Manager</th>
+                    <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider sticky left-[620px] bg-gradient-to-r from-gray-100 to-gray-50 z-30 border-r-2 border-gray-300">ARR</th>
                     {products.map(p => (
-                      <th key={p} className="px-2 py-4 text-xs font-bold text-gray-700 uppercase border-l border-gray-200" style={{minWidth: '80px', writingMode: 'vertical-rl', transform: 'rotate(180deg)'}}>
+                      <th key={p} className="px-2 py-4 text-xs font-bold text-gray-700 uppercase border-l border-gray-200 sticky top-0 bg-gradient-to-r from-gray-100 to-gray-50 z-20" style={{minWidth: '80px', writingMode: 'vertical-rl', transform: 'rotate(180deg)'}}>
                         {p}
                       </th>
                     ))}
-                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider sticky right-0 bg-gradient-to-r from-gray-100 to-gray-50 z-10 border-l-2 border-gray-300">Actions</th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider sticky right-0 top-0 bg-gradient-to-r from-gray-100 to-gray-50 z-30 border-l-2 border-gray-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {customers.map((c, idx) => (
-                    <tr key={c.id} className={`hover:bg-blue-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                      <td className="px-6 py-4 font-semibold text-gray-800 sticky left-0 bg-inherit z-10 border-r border-gray-200">
+                    <tr key={c.id} className={`hover:bg-blue-50 transition-colors cursor-pointer ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                      <td 
+                        onClick={() => {
+                          setSelectedCustomerDetail(c);
+                          setView('detail');
+                        }}
+                        className="px-6 py-4 font-semibold text-gray-800 sticky left-0 bg-inherit z-10 border-r border-gray-200"
+                      >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-[#2A5C59] to-[#E5173F] rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
                             {c.accountInfo.name.charAt(0)}
                           </div>
-                          <span className="font-medium">{c.accountInfo.name}</span>
+                          <span className="font-medium hover:text-[#2A5C59]">{c.accountInfo.name}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-700 font-mono">{c.accountInfo.id}</td>
-                      <td className="px-4 py-4 text-sm text-gray-700">{c.accountInfo.industry}</td>
-                      <td className="px-4 py-4 text-sm text-gray-700">{c.accountInfo.accountManager}</td>
-                      <td className="px-4 py-4 text-sm font-bold text-green-700">£{c.commercial.arr}</td>
+                      <td className="px-4 py-4 text-sm text-gray-700 font-mono sticky left-[220px] bg-inherit z-10 border-r border-gray-200">{c.accountInfo.id}</td>
+                      <td className="px-4 py-4 text-sm text-gray-700 sticky left-[320px] bg-inherit z-10 border-r border-gray-200">{c.accountInfo.industry}</td>
+                      <td className="px-4 py-4 text-sm text-gray-700 sticky left-[460px] bg-inherit z-10 border-r border-gray-200">{c.accountInfo.accountManager}</td>
+                      <td className="px-4 py-4 text-sm font-bold text-green-700 sticky left-[620px] bg-inherit z-10 border-r-2 border-gray-300">£{c.commercial.arr}</td>
                       {products.map(p => (
                         <td key={p} className="px-2 py-4 text-center border-l border-gray-200">
                           {c.products[p] ? (
@@ -811,7 +993,7 @@
         </div>
       );
 
-      const renderEventManagement = () => {
+      const renderList = () => (
         if (!selectedCustomerForEvents) return null;
 
         const currentCustomerData = customers.find(c => c.id === selectedCustomerForEvents.id) || selectedCustomerForEvents;
