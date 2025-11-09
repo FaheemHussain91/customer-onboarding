@@ -252,16 +252,12 @@
       });
 
       // load
-      useEffect(() => {
+useEffect(() => {
   const stored = localStorage.getItem("onboarding-data");
   if (stored) {
     const data = JSON.parse(stored);
-    // ✅ merge saved products with any new ones from your code
-    const mergedProducts = Array.from(
-      new Set([...(data.products || []), ...INITIAL_PRODUCTS])
-    );
     setCustomers(data.customers || []);
-    setProducts(mergedProducts);
+    setProducts(data.products || INITIAL_PRODUCTS);
   } else {
     setProducts(INITIAL_PRODUCTS);
   }
