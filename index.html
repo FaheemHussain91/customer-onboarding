@@ -537,12 +537,44 @@
                       <Users size={16} className="inline mr-2" />
                       Customers
                     </button>
+                    <button
+                      onClick={() => setView('summary')}
+                      className={`px-5 py-2.5 rounded-lg font-semibold transition-all flex items-center text-sm uppercase tracking-wide ${
+                        view === 'summary' 
+                          ? 'bg-white text-gray-800 shadow-lg' 
+                          : 'bg-white/20 text-white hover:bg-white/30'
+                      }`}
+                    >
+                      <CalendarDays size={16} className="inline mr-2" />
+                      Events
+                    </button>
+                    <button
+                      onClick={() => setView('timeline')}
+                      className={`px-5 py-2.5 rounded-lg font-semibold transition-all flex items-center text-sm uppercase tracking-wide ${
+                        view === 'timeline' 
+                          ? 'bg-white text-gray-800 shadow-lg' 
+                          : 'bg-white/20 text-white hover:bg-white/30'
+                      }`}
+                    >
+                      <Clock size={16} className="inline mr-2" />
+                      Timeline
+                    </button>
                   </div>
                 </div>
               </div>
 
               <div className="p-6">
                 {view === 'list' && renderList()}
+                {view === 'summary' && (
+                  <div className="text-center py-12">
+                    <p className="text-gray-600">Events Summary Page - Coming Soon</p>
+                  </div>
+                )}
+                {view === 'timeline' && (
+                  <div className="text-center py-12">
+                    <p className="text-gray-600">Timeline Page - Coming Soon</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
