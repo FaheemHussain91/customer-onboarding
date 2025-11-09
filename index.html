@@ -861,7 +861,7 @@
                       <tr key={c.id} className={`hover:bg-blue-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                         <td className="px-6 py-4 font-semibold text-gray-800 sticky left-0 bg-inherit z-10 border-r-2 border-gray-300">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-[#2A5C59] to-[#E5173F] rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
+                            <div className="w-10 h-10 min-w-[40px] min-h-[40px] bg-gradient-to-br from-[#2A5C59] to-[#E5173F] rounded-lg flex items-center justify-center text-white font-bold shadow-sm flex-shrink-0">
                               {c.accountInfo.name.charAt(0)}
                             </div>
                             <span className="font-medium">{c.accountInfo.name}</span>
@@ -950,7 +950,7 @@
                         className="px-6 py-4 font-semibold text-gray-800 sticky left-0 bg-inherit z-10 border-r border-gray-200 cursor-pointer"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-[#2A5C59] to-[#E5173F] rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
+                          <div className="w-10 h-10 min-w-[40px] min-h-[40px] bg-gradient-to-br from-[#2A5C59] to-[#E5173F] rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
                             {c.accountInfo.name.charAt(0)}
                           </div>
                           <span className="font-medium hover:text-[#2A5C59]">{c.accountInfo.name}</span>
