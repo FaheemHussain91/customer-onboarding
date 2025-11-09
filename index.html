@@ -993,7 +993,7 @@
         </div>
       );
 
-      const renderList = () => (
+      const renderEventManagement = () => {
         if (!selectedCustomerForEvents) return null;
 
         const currentCustomerData = customers.find(c => c.id === selectedCustomerForEvents.id) || selectedCustomerForEvents;
