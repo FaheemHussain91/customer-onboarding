@@ -14,24 +14,27 @@
     <script type="text/babel">
         const { useState } = React;
 
-        // Simple icon components
         const Check = ({ size = 24, className = "", strokeWidth = 2 }) => (
-            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth}>
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
         );
+
         const X = ({ size = 24, className = "", strokeWidth = 2 }) => (
-            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth}>
-                <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         );
+
         const ChevronRight = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
         );
+
         const ChevronLeft = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
         );
@@ -71,17 +74,20 @@
             ];
 
             const handleInputChange = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
+            
             const handleProductToggle = (product) => {
                 setFormData(prev => ({
                     ...prev, products: prev.products.includes(product) ? prev.products.filter(p => p !== product) : [...prev.products, product]
                 }));
             };
+            
             const addNewProduct = () => {
                 if (newProduct.trim() && !products.includes(newProduct.trim())) {
                     setProducts([...products, newProduct.trim()]);
                     setNewProduct('');
                 }
             };
+            
             const removeProduct = (productToRemove) => {
                 setProducts(products.filter(p => p !== productToRemove));
                 setFormData(prev => ({ ...prev, products: prev.products.filter(p => p !== productToRemove) }));
@@ -111,39 +117,16 @@
             };
 
             const getAllOnboardings = () => JSON.parse(localStorage.getItem('onboardings') || '[]');
+            
             const saveCustomerEvents = (customerId, events) => {
                 const allEvents = JSON.parse(localStorage.getItem('customerEvents') || '{}');
                 allEvents[customerId] = events;
                 localStorage.setItem('customerEvents', JSON.stringify(allEvents));
             };
+            
             const getCustomerEvents = (customerId) => {
                 const allEvents = JSON.parse(localStorage.getItem('customerEvents') || '{}');
                 return allEvents[customerId] || [];
-            };
-
-            const generateSampleData = () => {
-                const sampleCompanies = [
-                    { name: 'Acme Healthcare Ltd', industry: 'Healthcare', manager: 'Sarah Johnson', value: 125000, products: ['Income Management', 'Payment Portal', 'Direct Debits', 'Instant Payments'] },
-                    { name: 'Brighton Council', industry: 'Public Sector', manager: 'Michael Chen', value: 89000, products: ['eCourt Integration', 'Payment Portal', 'Smart Gateway', 'EPOS'] },
-                    { name: 'TechStart Finance', industry: 'Financial Services', manager: 'Emma Williams', value: 250000, products: ['P2PE (TMS)', 'Stored Card', 'Mobile SDK', 'ApplePay/GooglePay'] }
-                ];
-                const existing = getAllOnboardings();
-                sampleCompanies.forEach((company, idx) => {
-                    const id = `ONB-SMPL${String(idx + 1).padStart(3, '0')}`;
-                    if (!existing.find(e => e.id === id)) {
-                        existing.push({
-                            id, accountName: company.name, accountNumber: `ACC${10000 + idx}`,
-                            industry: company.industry, accountManager: company.manager, products: company.products,
-                            contractValue: company.value, startDate: '2025-03-15', billingFrequency: 'Quarterly',
-                            paymentMethod: 'Direct Debit', technicalContact: 'Tech Contact',
-                            technicalEmail: 'tech@example.com', businessContact: 'Business Contact',
-                            businessEmail: 'business@example.com', notes: '', submittedAt: new Date().toISOString(),
-                            status: 'Active'
-                        });
-                    }
-                });
-                localStorage.setItem('onboardings', JSON.stringify(existing));
-                window.location.reload();
             };
 
             const exportToExcel = () => {
@@ -204,9 +187,12 @@
                             }
                         });
                         localStorage.setItem('onboardings', JSON.stringify(existingData));
-                        alert(`Imported ${rows.length} records!`);
+                        alert(`Successfully imported ${rows.length} records!`);
                         window.location.reload();
-                    } catch (error) { alert('Error importing file'); }
+                    } catch (error) { 
+                        alert('Error importing file. Please check the format.'); 
+                        console.error(error);
+                    }
                 };
                 reader.readAsText(file);
             };
@@ -218,21 +204,58 @@
                             <div className="flex justify-between items-center">
                                 <div>
                                     <h1 className="text-3xl font-bold text-gray-800">Customer Onboarding</h1>
-                                    <p className="text-gray-600 mt-1">Manage your customer onboarding process</p>
+                                    <p className="text-gray-600 mt-1">Complete onboarding forms and manage customer data</p>
                                 </div>
                                 <div className="flex gap-3">
-                                    <button onClick={() => { setViewMode('form'); setIsSubmitted(false); setSelectedCustomer(null); }} className={`px-6 py-3 rounded-lg font-semibold ${viewMode === 'form' ? 'text-white' : 'bg-gray-200 text-gray-700'}`} style={viewMode === 'form' ? {backgroundColor: '#2a5c59'} : {}}>New Onboarding</button>
-                                    <button onClick={() => { setViewMode('list'); setSelectedCustomer(null); }} className={`px-6 py-3 rounded-lg font-semibold ${viewMode === 'list' ? 'text-white' : 'bg-gray-200 text-gray-700'}`} style={viewMode === 'list' ? {backgroundColor: '#2a5c59'} : {}}>Customer List</button>
-                                    <button onClick={() => { setViewMode('timeline'); setSelectedCustomer(null); }} className={`px-6 py-3 rounded-lg font-semibold ${viewMode === 'timeline' ? 'text-white' : 'bg-gray-200 text-gray-700'}`} style={viewMode === 'timeline' ? {backgroundColor: '#2a5c59'} : {}}>Master Timeline</button>
+                                    <button onClick={() => { setViewMode('form'); setIsSubmitted(false); setSelectedCustomer(null); }} 
+                                        className={`px-6 py-3 rounded-lg font-semibold ${viewMode === 'form' ? 'text-white' : 'bg-gray-200 text-gray-700'}`} 
+                                        style={viewMode === 'form' ? {backgroundColor: '#2a5c59'} : {}}>
+                                        New Onboarding
+                                    </button>
+                                    <button onClick={() => { setViewMode('list'); setSelectedCustomer(null); }} 
+                                        className={`px-6 py-3 rounded-lg font-semibold ${viewMode === 'list' ? 'text-white' : 'bg-gray-200 text-gray-700'}`} 
+                                        style={viewMode === 'list' ? {backgroundColor: '#2a5c59'} : {}}>
+                                        Customer List
+                                    </button>
+                                    <button onClick={() => { setViewMode('timeline'); setSelectedCustomer(null); }} 
+                                        className={`px-6 py-3 rounded-lg font-semibold ${viewMode === 'timeline' ? 'text-white' : 'bg-gray-200 text-gray-700'}`} 
+                                        style={viewMode === 'timeline' ? {backgroundColor: '#2a5c59'} : {}}>
+                                        Master Timeline
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
-                        {/* The rest of the UI would go here - this is a simplified working version */}
-                        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                            <h2 className="text-2xl font-bold mb-4" style={{color: '#2a5c59'}}>Welcome to Customer Onboarding</h2>
-                            <p className="text-gray-600 mb-6">Your app is successfully deployed! Click the buttons above to navigate.</p>
-                            <button onClick={generateSampleData} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">Load Sample Data</button>
+                        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                            <h2 className="text-3xl font-bold mb-4" style={{color: '#2a5c59'}}>Welcome to Customer Onboarding</h2>
+                            <p className="text-gray-600 mb-8 text-lg">Get started by creating a new onboarding or importing your customer data</p>
+                            
+                            <div className="grid grid-cols-2 gap-6 max-w-2xl mx-auto">
+                                <div className="border-2 border-gray-300 rounded-lg p-6 hover:border-teal-600 transition-all">
+                                    <h3 className="font-bold text-xl mb-2">Create New</h3>
+                                    <p className="text-gray-600 text-sm mb-4">Start onboarding a new customer</p>
+                                    <button onClick={() => setViewMode('form')} className="px-6 py-2 text-white rounded-lg font-semibold" style={{backgroundColor: '#2a5c59'}}>
+                                        Start Onboarding
+                                    </button>
+                                </div>
+                                
+                                <div className="border-2 border-gray-300 rounded-lg p-6 hover:border-teal-600 transition-all">
+                                    <h3 className="font-bold text-xl mb-2">Import Data</h3>
+                                    <p className="text-gray-600 text-sm mb-4">Upload your customer CSV file</p>
+                                    <input type="file" accept=".csv" onChange={importFromExcel} style={{display: 'none'}} id="fileInput" />
+                                    <button onClick={() => document.getElementById('fileInput').click()} className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">
+                                        Choose File
+                                    </button>
+                                </div>
+                            </div>
+
+                            {getAllOnboardings().length > 0 && (
+                                <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg max-w-2xl mx-auto">
+                                    <p className="text-green-800 font-semibold">
+                                        ✓ You have {getAllOnboardings().length} customer{getAllOnboardings().length !== 1 ? 's' : ''} onboarded
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
