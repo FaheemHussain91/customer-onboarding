@@ -223,12 +223,19 @@
       const [currentCustomer, setCurrentCustomer] = useState(null);
       const [step, setStep] = useState(1);
       const [formData, setFormData] = useState({
-        accountInfo: { name: "", id: "", industry: "", accountManager: "" },
+        accountInfo: {
+        name: "",
+        id: "",
+        industry: "",
+        accountManager: "",
+        active: true,
+        inactiveDate: "",
+        },
         products: {},
         commercial: { arr: "", contractLength: "", renewalDate: "" },
         contacts: [{ name: "", email: "", role: "" }],
-        events: [],
-      });
+          events: [],
+          });
       const [newProduct, setNewProduct] = useState("");
       const [showProductManager, setShowProductManager] = useState(false);
       const [selectedCustomerForEvents, setSelectedCustomerForEvents] = useState(null);
@@ -236,11 +243,13 @@
       const [editingEventIndex, setEditingEventIndex] = useState(null);
       const [selectedCustomerDetail, setSelectedCustomerDetail] = useState(null);
       const [filters, setFilters] = useState({
-        name: "",
-        accountCode: "",
-        manager: "",
-        product: "",
-      });
+  name: "",
+  accountCode: "",
+  manager: "",
+  product: "",
+  status: "", // "active" | "inactive" | ""
+});
+
       const [eventFormData, setEventFormData] = useState({
         type: "Review",
         meetingType: "F2F",
@@ -275,26 +284,32 @@ useEffect(() => {
 
       const startOnboarding = () => {
         setFormData({
-          accountInfo: { name: "", id: "", industry: "", accountManager: "" },
-          products: {},
-          commercial: { arr: "", contractLength: "", renewalDate: "" },
-          contacts: [{ name: "", email: "", role: "" }],
-          events: [],
-        });
-        setCurrentCustomer(null);
-        setStep(1);
-        setView("onboard");
-      };
+  accountInfo: {
+    name: "",
+    id: "",
+    industry: "",
+    accountManager: "",
+    active: true,         // ✅ new field
+    inactiveDate: "",     // ✅ new field
+  },
+  products: {},
+  commercial: { arr: "", contractLength: "", renewalDate: "" },
+  contacts: [{ name: "", email: "", role: "" }],
+  events: [],
+});
 
       const editCustomer = (customer) => {
         setCurrentCustomer(customer);
         setFormData({
           accountInfo: customer.accountInfo,
-          products: customer.products,
-          commercial: customer.commercial,
-          contacts: customer.contacts,
-          events: customer.events || [],
-        });
+          active: customer.accountInfo.active ?? true, // ensure "active" always exists
+    inactiveDate: customer.accountInfo.inactiveDate ?? "", // ensure inactive date always exists
+  },
+        products: customer.products,
+  commercial: customer.commercial,
+  contacts: customer.contacts,
+  events: customer.events || [],
+});
         setStep(1);
         setView("onboard");
       };
@@ -496,18 +511,32 @@ useEffect(() => {
 
       // filters
       const getFilteredCustomers = () => {
-        return customers.filter((c) => {
-          const matchesName =
-            !filters.name || c.accountInfo.name.toLowerCase().includes(filters.name.toLowerCase());
-          const matchesCode =
-            !filters.accountCode ||
-            c.accountInfo.id.toLowerCase().includes(filters.accountCode.toLowerCase());
-          const matchesManager =
-            !filters.manager || c.accountInfo.accountManager === filters.manager;
-          const matchesProduct = !filters.product || c.products[filters.product];
-          return matchesName && matchesCode && matchesManager && matchesProduct;
-        });
-      };
+  return customers.filter((c) => {
+    const matchesName =
+      !filters.name ||
+      c.accountInfo.name.toLowerCase().includes(filters.name.toLowerCase());
+    const matchesCode =
+      !filters.accountCode ||
+      c.accountInfo.id.toLowerCase().includes(filters.accountCode.toLowerCase());
+    const matchesManager =
+      !filters.manager || c.accountInfo.accountManager === filters.manager;
+    const matchesProduct = !filters.product || c.products[filters.product];
+
+    const isActive = c.accountInfo.active ?? true;
+    const matchesStatus =
+      !filters.status ||
+      (filters.status === "active" && isActive) ||
+      (filters.status === "inactive" && !isActive);
+
+    return (
+      matchesName &&
+      matchesCode &&
+      matchesManager &&
+      matchesProduct &&
+      matchesStatus
+    );
+  });
+};};
 
       const uniqueManagers = [
         ...new Set(customers.map((c) => c.accountInfo.accountManager).filter(Boolean)),
@@ -1183,7 +1212,54 @@ const renderTimeline = () => {
                   </div>
                 </div>
               </div>
-            );
+            )
+              <div className="mt-2">
+  <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
+    <input
+      type="checkbox"
+      checked={formData.accountInfo.active}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          accountInfo: {
+            ...formData.accountInfo,
+            active: e.target.checked,
+            // clear date if re-activating
+            inactiveDate: e.target.checked ? "" : formData.accountInfo.inactiveDate,
+          },
+        })
+      }
+      className="w-4 h-4"
+    />
+    Active account
+  </label>
+</div>
+
+{!formData.accountInfo.active && (
+  <div className="mt-3">
+    <label className="block text-sm font-semibold text-gray-700">
+      Inactive from
+    </label>
+    <input
+      type="date"
+      className={inputClass}
+      value={formData.accountInfo.inactiveDate}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          accountInfo: {
+            ...formData.accountInfo,
+            inactiveDate: e.target.value,
+          },
+        })
+      }
+    />
+  </div>
+)}
+
+              
+              
+              ;
           case 2:
             return (
               <div className="space-y-6">
@@ -1524,7 +1600,7 @@ const renderTimeline = () => {
             {/* filters */}
             <div className="bg-white rounded-lg shadow-md border border-gray-100 p-4">
               <h3 className="font-bold text-sm uppercase tracking-wide text-gray-700 mb-4">Filters</h3>
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-5 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
                     Customer Name
@@ -1595,6 +1671,21 @@ const renderTimeline = () => {
                 </button>
               )}
             </div>
+            <div>
+  <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
+    Status
+  </label>
+  <select
+    value={filters.status}
+    onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+    className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2A5C59]"
+  >
+    <option value="">All</option>
+    <option value="active">Active</option>
+    <option value="inactive">Inactive</option>
+  </select>
+</div>
+
 
             {/* table */}
             <div className="bg-white rounded-lg shadow-md border border-gray-100 overflow-hidden">
@@ -1617,6 +1708,9 @@ const renderTimeline = () => {
                       <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                         ARR
                       </th>
+                      <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+  Status
+</th>
                       {products.map((p) => (
                         <th
                           key={p}
@@ -1672,6 +1766,21 @@ const renderTimeline = () => {
                         <td className="px-4 py-4 text-sm font-bold text-green-700">
                           £{Math.round(parseFloat(c.commercial.arr) || 0).toLocaleString()}
                         </td>
+                        <td className="px-4 py-4 text-sm">
+  {c.accountInfo.active ?? true ? (
+    <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-md text-xs font-semibold">
+      <span className="w-2 h-2 rounded-full bg-green-500"></span>
+      Active
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-800 rounded-md text-xs font-semibold">
+      <span className="w-2 h-2 rounded-full bg-red-500"></span>
+      Inactive
+      {c.accountInfo.inactiveDate ? ` • ${c.accountInfo.inactiveDate}` : ""}
+    </span>
+  )}
+</td>
+
                         {products.map((p) => (
                           <td key={p} className="px-2 py-4 text-center border-l border-gray-100">
                             {c.products[p] ? (
