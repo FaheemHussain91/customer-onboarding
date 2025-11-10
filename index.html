@@ -301,11 +301,12 @@ setCurrentCustomer(null);
   setStep(1);
   setView("onboard");
 };
-      const editCustomer = (customer) => {
-        setCurrentCustomer(customer);
-        setFormData({
-          accountInfo: customer.accountInfo,
-          active: customer.accountInfo.active ?? true,
+     const editCustomer = (customer) => {
+  setCurrentCustomer(customer);
+  setFormData({
+    accountInfo: {
+      ...customer.accountInfo,
+      active: customer.accountInfo.active ?? true,
       inactiveDate: customer.accountInfo.inactiveDate ?? "",
     },
     products: customer.products,
@@ -315,7 +316,7 @@ setCurrentCustomer(null);
   });
   setStep(1);
   setView("onboard");
-};
+};;
 
       const saveCustomer = () => {
         const customer = {
