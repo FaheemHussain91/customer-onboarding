@@ -297,22 +297,25 @@ useEffect(() => {
   contacts: [{ name: "", email: "", role: "" }],
   events: [],
 });
-
+setCurrentCustomer(null);
+  setStep(1);
+  setView("onboard");
+};
       const editCustomer = (customer) => {
         setCurrentCustomer(customer);
         setFormData({
           accountInfo: customer.accountInfo,
-          active: customer.accountInfo.active ?? true, // ensure "active" always exists
-    inactiveDate: customer.accountInfo.inactiveDate ?? "", // ensure inactive date always exists
-  },
-        products: customer.products,
-  commercial: customer.commercial,
-  contacts: customer.contacts,
-  events: customer.events || [],
-});
-        setStep(1);
-        setView("onboard");
-      };
+          active: customer.accountInfo.active ?? true,
+      inactiveDate: customer.accountInfo.inactiveDate ?? "",
+    },
+    products: customer.products,
+    commercial: customer.commercial,
+    contacts: customer.contacts,
+    events: customer.events || [],
+  });
+  setStep(1);
+  setView("onboard");
+};
 
       const saveCustomer = () => {
         const customer = {
@@ -536,7 +539,7 @@ useEffect(() => {
       matchesStatus
     );
   });
-};};
+};
 
       const uniqueManagers = [
         ...new Set(customers.map((c) => c.accountInfo.accountManager).filter(Boolean)),
@@ -1149,113 +1152,118 @@ const renderTimeline = () => {
 
         switch (step) {
           case 1:
-            return (
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700">Customer Name</label>
-                  <input
-                    className={inputClass}
-                    placeholder="Enter customer name"
-                    value={formData.accountInfo.name}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        accountInfo: { ...formData.accountInfo, name: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700">Customer ID</label>
-                  <input
-                    className={inputClass}
-                    placeholder="Enter unique identifier"
-                    value={formData.accountInfo.id}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        accountInfo: { ...formData.accountInfo, id: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700">Industry</label>
-                    <input
-                      className={inputClass}
-                      placeholder="e.g., Finance, Healthcare"
-                      value={formData.accountInfo.industry}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          accountInfo: { ...formData.accountInfo, industry: e.target.value },
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700">
-                      Account Manager
-                    </label>
-                    <input
-                      className={inputClass}
-                      placeholder="e.g., John Smith"
-                      value={formData.accountInfo.accountManager}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          accountInfo: { ...formData.accountInfo, accountManager: e.target.value },
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            )
-              <div className="mt-2">
-  <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
-    <input
-      type="checkbox"
-      checked={formData.accountInfo.active}
-      onChange={(e) =>
-        setFormData({
-          ...formData,
-          accountInfo: {
-            ...formData.accountInfo,
-            active: e.target.checked,
-            // clear date if re-activating
-            inactiveDate: e.target.checked ? "" : formData.accountInfo.inactiveDate,
-          },
-        })
-      }
-      className="w-4 h-4"
-    />
-    Active account
-  </label>
-</div>
+  return (
+    <div className="space-y-6">
+      <div>
+        <label className="block text-sm font-semibold text-gray-700">Customer Name</label>
+        <input
+          className={inputClass}
+          placeholder="Enter customer name"
+          value={formData.accountInfo.name}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              accountInfo: { ...formData.accountInfo, name: e.target.value },
+            })
+          }
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700">Customer ID</label>
+        <input
+          className={inputClass}
+          placeholder="Enter unique identifier"
+          value={formData.accountInfo.id}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              accountInfo: { ...formData.accountInfo, id: e.target.value },
+            })
+          }
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-semibold text-gray-700">Industry</label>
+          <input
+            className={inputClass}
+            placeholder="e.g., Finance, Healthcare"
+            value={formData.accountInfo.industry}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                accountInfo: { ...formData.accountInfo, industry: e.target.value },
+              })
+            }
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700">Account Manager</label>
+          <input
+            className={inputClass}
+            placeholder="e.g., John Smith"
+            value={formData.accountInfo.accountManager}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                accountInfo: {
+                  ...formData.accountInfo,
+                  accountManager: e.target.value,
+                },
+              })
+            }
+          />
+        </div>
+      </div>
 
-{!formData.accountInfo.active && (
-  <div className="mt-3">
-    <label className="block text-sm font-semibold text-gray-700">
-      Inactive from
-    </label>
-    <input
-      type="date"
-      className={inputClass}
-      value={formData.accountInfo.inactiveDate}
-      onChange={(e) =>
-        setFormData({
-          ...formData,
-          accountInfo: {
-            ...formData.accountInfo,
-            inactiveDate: e.target.value,
-          },
-        })
-      }
-    />
-  </div>
-)}
+      {/* ✅ Active / inactive bit goes INSIDE the return */}
+      <div className="mt-2">
+        <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <input
+            type="checkbox"
+            checked={formData.accountInfo.active}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                accountInfo: {
+                  ...formData.accountInfo,
+                  active: e.target.checked,
+                  inactiveDate: e.target.checked
+                    ? ""
+                    : formData.accountInfo.inactiveDate,
+                },
+              })
+            }
+            className="w-4 h-4"
+          />
+          Active account
+        </label>
+      </div>
+
+      {!formData.accountInfo.active && (
+        <div className="mt-3">
+          <label className="block text-sm font-semibold text-gray-700">
+            Inactive from
+          </label>
+          <input
+            type="date"
+            className={inputClass}
+            value={formData.accountInfo.inactiveDate}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                accountInfo: {
+                  ...formData.accountInfo,
+                  inactiveDate: e.target.value,
+                },
+              })
+            }
+          />
+        </div>
+      )}
+    </div>
+  );
+
 
               
               
@@ -1660,18 +1668,7 @@ const renderTimeline = () => {
                   </select>
                 </div>
               </div>
-              {(filters.name || filters.accountCode || filters.manager || filters.product) && (
-                <button
-                  onClick={() =>
-                    setFilters({ name: "", accountCode: "", manager: "", product: "" })
-                  }
-                  className="mt-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-xs font-semibold uppercase tracking-wide"
-                >
-                  Clear Filters
-                </button>
-              )}
-            </div>
-            <div>
+              <div>
   <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">
     Status
   </label>
@@ -1686,7 +1683,19 @@ const renderTimeline = () => {
   </select>
 </div>
 
+              {(filters.name || filters.accountCode || filters.manager || filters.product) && (
+                <button
+                  onClick={() =>
+                    setFilters({ name: "", accountCode: "", manager: "", product: "" })
+                  }
+                  className="mt-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-xs font-semibold uppercase tracking-wide"
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
 
+            
             {/* table */}
             <div className="bg-white rounded-lg shadow-md border border-gray-100 overflow-hidden">
               <div className="overflow-x-auto" style={{ maxHeight: "75vh" }}>
