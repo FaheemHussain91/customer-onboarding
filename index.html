@@ -77,7 +77,7 @@
       const [selectedCustomerDetail, setSelectedCustomerDetail] = useState(null);
       const [filters, setFilters] = useState({ name: '', accountCode: '', manager: '', products: [], status: '' });
       const [eventFormData, setEventFormData] = useState({
-        type: 'Review',
+        type: 'Customer Support',
         meetingType: 'F2F',
         date: '',
         subject: '',
@@ -337,8 +337,14 @@
                     <button onClick={() => setView('home')} className={`px-5 py-2.5 rounded-lg font-semibold transition-all flex items-center text-sm uppercase tracking-wide ${view === 'home' ? 'bg-white text-gray-800 shadow-lg' : 'bg-white/20 text-white hover:bg-white/30'}`}>
                       <LayoutGrid size={16} className="inline mr-2" />Home
                     </button>
+                    <button onClick={() => setView('summary')} className={`px-5 py-2.5 rounded-lg font-semibold transition-all flex items-center text-sm uppercase tracking-wide ${view === 'summary' ? 'bg-white text-gray-800 shadow-lg' : 'bg-white/20 text-white hover:bg-white/30'}`}>
+                      <Users size={16} className="inline mr-2" />Summary
+                    </button>
                     <button onClick={() => setView('list')} className={`px-5 py-2.5 rounded-lg font-semibold transition-all flex items-center text-sm uppercase tracking-wide ${view === 'list' ? 'bg-white text-gray-800 shadow-lg' : 'bg-white/20 text-white hover:bg-white/30'}`}>
-                      <Users size={16} className="inline mr-2" />Customers
+                      <LayoutGrid size={16} className="inline mr-2" />Portfolio
+                    </button>
+                    <button onClick={() => setView('renewals')} className={`px-5 py-2.5 rounded-lg font-semibold transition-all flex items-center text-sm uppercase tracking-wide ${view === 'renewals' ? 'bg-white text-gray-800 shadow-lg' : 'bg-white/20 text-white hover:bg-white/30'}`}>
+                      <Calendar size={16} className="inline mr-2" />Renewals
                     </button>
                     <button onClick={() => setView('events')} className={`px-5 py-2.5 rounded-lg font-semibold transition-all flex items-center text-sm uppercase tracking-wide ${view === 'events' ? 'bg-white text-gray-800 shadow-lg' : 'bg-white/20 text-white hover:bg-white/30'}`}>
                       <CalendarDays size={16} className="inline mr-2" />Events
@@ -351,6 +357,182 @@
               </div>
 
               <div className="p-6">
+                {view === 'summary' && (
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-800">Customer Summary</h2>
+                        <p className="text-gray-600 mt-1 text-xs uppercase tracking-wide">{customers.length} Total Customers</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-4">
+                      {customers.map(c => {
+                        const productCount = Object.values(c.products).filter(Boolean).length;
+                        const eventCount = (c.events || []).length;
+                        const isActive = c.accountInfo.active ?? true;
+                        
+                        return (
+                          <div key={c.id} onClick={() => { setSelectedCustomerDetail(c); setView('detail'); }} className="bg-white rounded-xl shadow-md border-2 border-gray-200 p-5 cursor-pointer hover:border-[#2A5C59] hover:shadow-lg hover:-translate-y-1 transition-all">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-12 h-12 min-w-[48px] min-h-[48px] bg-gradient-to-br from-[#2A5C59] to-[#E5173F] rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md flex-shrink-0">
+                                {c.accountInfo.name.charAt(0)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-bold text-sm text-gray-800 truncate">{c.accountInfo.name}</p>
+                                <p className="text-xs text-gray-500 font-mono">{c.accountInfo.id}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2 mb-3">
+                              <div className="flex justify-between items-center text-xs">
+                                <span className="text-gray-600 font-semibold uppercase">ARR:</span>
+                                <span className="font-bold text-green-700 text-base">£{Math.round(parseFloat(c.commercial.arr) || 0).toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-xs">
+                                <span className="text-gray-600 font-semibold uppercase">Manager:</span>
+                                <span className="font-semibold text-gray-800 truncate ml-2">{c.accountInfo.accountManager}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-xs">
+                                <span className="text-gray-600 font-semibold uppercase">Products:</span>
+                                <span className="font-semibold text-gray-800">{productCount}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-xs">
+                                <span className="text-gray-600 font-semibold uppercase">Events:</span>
+                                <span className="font-semibold text-gray-800">{eventCount}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                              {isActive ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-md text-xs font-bold">
+                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>Active
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-800 rounded-md text-xs font-bold">
+                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>Inactive
+                                </span>
+                              )}
+                              <div className="flex gap-1">
+                                <button onClick={(e) => { e.stopPropagation(); setSelectedCustomerForEvents(c); setView('events'); }} className="p-1.5 text-[#E5173F] hover:bg-red-50 rounded" title="Events">
+                                  <CalendarDays size={14} />
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); editCustomer(c); }} className="p-1.5 text-[#2A5C59] hover:bg-teal-50 rounded" title="Edit">
+                                  <Edit2 size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {view === 'renewals' && (
+                  <div className="space-y-6">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-800">Contract Renewals</h2>
+                      <p className="text-gray-600 mt-1 text-xs uppercase tracking-wide">Upcoming Contract Renewals</p>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-6">
+                      {(() => {
+                        const today = new Date();
+                        const next30 = customers.filter(c => {
+                          if (!c.commercial.renewalDate) return false;
+                          const renewal = new Date(c.commercial.renewalDate);
+                          const diff = (renewal - today) / (1000 * 60 * 60 * 24);
+                          return diff >= 0 && diff <= 30;
+                        });
+                        const next90 = customers.filter(c => {
+                          if (!c.commercial.renewalDate) return false;
+                          const renewal = new Date(c.commercial.renewalDate);
+                          const diff = (renewal - today) / (1000 * 60 * 60 * 24);
+                          return diff > 30 && diff <= 90;
+                        });
+                        const beyond = customers.filter(c => {
+                          if (!c.commercial.renewalDate) return false;
+                          const renewal = new Date(c.commercial.renewalDate);
+                          const diff = (renewal - today) / (1000 * 60 * 60 * 24);
+                          return diff > 90;
+                        });
+
+                        return (
+                          <>
+                            <div className="bg-white rounded-lg shadow-md border-2 border-red-300 p-6">
+                              <h3 className="font-bold text-lg uppercase tracking-wide text-red-700 mb-1">Next 30 Days</h3>
+                              <p className="text-3xl font-bold text-gray-800 mb-4">{next30.length}</p>
+                              <div className="space-y-2 max-h-96 overflow-y-auto">
+                                {next30.map(c => (
+                                  <div key={c.id} onClick={() => { setSelectedCustomerDetail(c); setView('detail'); }} className="p-3 bg-red-50 border-2 border-red-200 rounded-lg cursor-pointer hover:border-red-400 transition-all">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-8 h-8 bg-gradient-to-br from-[#2A5C59] to-[#E5173F] rounded-md flex items-center justify-center text-white font-bold text-sm">
+                                        {c.accountInfo.name.charAt(0)}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="font-bold text-sm text-gray-800 truncate">{c.accountInfo.name}</p>
+                                        <p className="text-xs text-gray-600">£{Math.round(parseFloat(c.commercial.arr) || 0).toLocaleString()}</p>
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-red-700 font-bold">Renews: {c.commercial.renewalDate}</div>
+                                  </div>
+                                ))}
+                                {next30.length === 0 && <p className="text-sm text-gray-500 text-center py-4">No renewals</p>}
+                              </div>
+                            </div>
+
+                            <div className="bg-white rounded-lg shadow-md border-2 border-orange-300 p-6">
+                              <h3 className="font-bold text-lg uppercase tracking-wide text-orange-700 mb-1">Next 31-90 Days</h3>
+                              <p className="text-3xl font-bold text-gray-800 mb-4">{next90.length}</p>
+                              <div className="space-y-2 max-h-96 overflow-y-auto">
+                                {next90.map(c => (
+                                  <div key={c.id} onClick={() => { setSelectedCustomerDetail(c); setView('detail'); }} className="p-3 bg-orange-50 border-2 border-orange-200 rounded-lg cursor-pointer hover:border-orange-400 transition-all">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-8 h-8 bg-gradient-to-br from-[#2A5C59] to-[#E5173F] rounded-md flex items-center justify-center text-white font-bold text-sm">
+                                        {c.accountInfo.name.charAt(0)}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="font-bold text-sm text-gray-800 truncate">{c.accountInfo.name}</p>
+                                        <p className="text-xs text-gray-600">£{Math.round(parseFloat(c.commercial.arr) || 0).toLocaleString()}</p>
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-orange-700 font-bold">Renews: {c.commercial.renewalDate}</div>
+                                  </div>
+                                ))}
+                                {next90.length === 0 && <p className="text-sm text-gray-500 text-center py-4">No renewals</p>}
+                              </div>
+                            </div>
+
+                            <div className="bg-white rounded-lg shadow-md border-2 border-green-300 p-6">
+                              <h3 className="font-bold text-lg uppercase tracking-wide text-green-700 mb-1">Beyond 90 Days</h3>
+                              <p className="text-3xl font-bold text-gray-800 mb-4">{beyond.length}</p>
+                              <div className="space-y-2 max-h-96 overflow-y-auto">
+                                {beyond.slice(0, 10).map(c => (
+                                  <div key={c.id} onClick={() => { setSelectedCustomerDetail(c); setView('detail'); }} className="p-3 bg-green-50 border-2 border-green-200 rounded-lg cursor-pointer hover:border-green-400 transition-all">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-8 h-8 bg-gradient-to-br from-[#2A5C59] to-[#E5173F] rounded-md flex items-center justify-center text-white font-bold text-sm">
+                                        {c.accountInfo.name.charAt(0)}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="font-bold text-sm text-gray-800 truncate">{c.accountInfo.name}</p>
+                                        <p className="text-xs text-gray-600">£{Math.round(parseFloat(c.commercial.arr) || 0).toLocaleString()}</p>
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-green-700 font-bold">Renews: {c.commercial.renewalDate}</div>
+                                  </div>
+                                ))}
+                                {beyond.length === 0 && <p className="text-sm text-gray-500 text-center py-4">No renewals</p>}
+                                {beyond.length > 10 && <p className="text-xs text-gray-500 text-center mt-2">+{beyond.length - 10} more</p>}
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
+
                 {view === 'home' && (
                   <div className="space-y-8">
                     <div className="text-center">
@@ -664,7 +846,7 @@
                                 <div>
                                   <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Event Type</label>
                                   <select value={eventFormData.type} onChange={e => setEventFormData({...eventFormData, type: e.target.value})} className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2A5C59]">
-                                    <option value="Review">Review</option>
+                                    <option value="Customer Support">Customer Support</option>
                                     <option value="Contract Renewal">Contract Renewal</option>
                                     <option value="Technical Meeting">Technical Meeting</option>
                                   </select>
